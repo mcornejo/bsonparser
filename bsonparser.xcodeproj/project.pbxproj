@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		16C29E131E6A97F20027AAC1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E121E6A97F20027AAC1 /* main.cpp */; };
+		16C29E2D1E6AAFFD0027AAC1 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E251E6AAFFD0027AAC1 /* Makefile */; };
+		16C29E2E1E6AAFFD0027AAC1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2B1E6AAFFD0027AAC1 /* main.cpp */; };
+		16C29E2F1E6AAFFD0027AAC1 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2C1E6AAFFD0027AAC1 /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +26,9 @@
 
 /* Begin PBXFileReference section */
 		16C29E0F1E6A97F20027AAC1 /* bsonparser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bsonparser; sourceTree = BUILT_PRODUCTS_DIR; };
-		16C29E121E6A97F20027AAC1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		16C29E251E6AAFFD0027AAC1 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		16C29E2B1E6AAFFD0027AAC1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		16C29E2C1E6AAFFD0027AAC1 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +45,13 @@
 		16C29E061E6A97F20027AAC1 = {
 			isa = PBXGroup;
 			children = (
-				16C29E111E6A97F20027AAC1 /* bsonparser */,
+				16C29E251E6AAFFD0027AAC1 /* Makefile */,
+				16C29E261E6AAFFD0027AAC1 /* lib */,
+				16C29E271E6AAFFD0027AAC1 /* test */,
+				16C29E281E6AAFFD0027AAC1 /* doc */,
+				16C29E291E6AAFFD0027AAC1 /* bsonparser */,
+				16C29E2A1E6AAFFD0027AAC1 /* src */,
+				16C29E2C1E6AAFFD0027AAC1 /* README.md */,
 				16C29E101E6A97F20027AAC1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,12 +64,40 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		16C29E111E6A97F20027AAC1 /* bsonparser */ = {
+		16C29E261E6AAFFD0027AAC1 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				16C29E121E6A97F20027AAC1 /* main.cpp */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		16C29E271E6AAFFD0027AAC1 /* test */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
+		16C29E281E6AAFFD0027AAC1 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = doc;
+			sourceTree = "<group>";
+		};
+		16C29E291E6AAFFD0027AAC1 /* bsonparser */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			path = bsonparser;
+			sourceTree = "<group>";
+		};
+		16C29E2A1E6AAFFD0027AAC1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				16C29E2B1E6AAFFD0027AAC1 /* main.cpp */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,7 +157,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16C29E131E6A97F20027AAC1 /* main.cpp in Sources */,
+				16C29E2F1E6AAFFD0027AAC1 /* README.md in Sources */,
+				16C29E2E1E6AAFFD0027AAC1 /* main.cpp in Sources */,
+				16C29E2D1E6AAFFD0027AAC1 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
