@@ -12,7 +12,6 @@ endif
 SRCDIR := src
 BUILDDIR := build
 TARGET := bin/bsonparser
- 
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
@@ -27,6 +26,7 @@ $(TARGET): $(OBJECTS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
+	cp samples/test.bson bin/test.bson
 
 clean:
 	@echo " Cleaning..."; 
@@ -35,6 +35,7 @@ clean:
 # Tests
 test:
 	$(CC) $(CFLAGS) test/tester.cpp $(INC) $(LIB) -o bin/tester
+
 
 
 .PHONY: clean
