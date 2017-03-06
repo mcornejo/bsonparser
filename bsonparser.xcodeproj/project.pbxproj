@@ -11,7 +11,14 @@
 		16C29E2E1E6AAFFD0027AAC1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2B1E6AAFFD0027AAC1 /* main.cpp */; };
 		16C29E2F1E6AAFFD0027AAC1 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2C1E6AAFFD0027AAC1 /* README.md */; };
 		16C29E5E1E6AE49F0027AAC1 /* BSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E5C1E6AE49F0027AAC1 /* BSON.cpp */; };
-		16C29E651E6AE9300027AAC1 /* test.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16C29E611E6AE5070027AAC1 /* test.bson */; settings = {ASSET_TAGS = (New, ); }; };
+		16ED55E11E6D69F8009AF2DC /* test2.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16A50C3F1E6D68BD00A6BA6D /* test2.bson */; };
+		16ED55E21E6D69F8009AF2DC /* test.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16C29E611E6AE5070027AAC1 /* test.bson */; };
+		16ED55E41E6D6ED9009AF2DC /* identities.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16ED55E31E6D6ED9009AF2DC /* identities.bson */; };
+		16ED55E51E6D6EE6009AF2DC /* identities.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16ED55E31E6D6ED9009AF2DC /* identities.bson */; };
+		16ED55E71E6DC11D009AF2DC /* clerks.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16ED55E61E6DC11D009AF2DC /* clerks.bson */; };
+		16ED55E81E6DC12B009AF2DC /* test2.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16A50C3F1E6D68BD00A6BA6D /* test2.bson */; };
+		16ED55E91E6DC12B009AF2DC /* test.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16C29E611E6AE5070027AAC1 /* test.bson */; };
+		16ED55EA1E6DC155009AF2DC /* clerks.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16ED55E61E6DC11D009AF2DC /* clerks.bson */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -19,14 +26,19 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "";
-			dstSubfolderSpec = 6;
+			dstSubfolderSpec = 16;
 			files = (
+				16ED55EA1E6DC155009AF2DC /* clerks.bson in CopyFiles */,
+				16ED55E51E6D6EE6009AF2DC /* identities.bson in CopyFiles */,
+				16ED55E11E6D69F8009AF2DC /* test2.bson in CopyFiles */,
+				16ED55E21E6D69F8009AF2DC /* test.bson in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		16A50C3F1E6D68BD00A6BA6D /* test2.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = test2.bson; sourceTree = "<group>"; };
 		16C29E0F1E6A97F20027AAC1 /* bsonparser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bsonparser; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C29E251E6AAFFD0027AAC1 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		16C29E2B1E6AAFFD0027AAC1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -70,6 +82,8 @@
 		16C29E5D1E6AE49F0027AAC1 /* BSON.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = BSON.hpp; sourceTree = "<group>"; };
 		16C29E601E6AE5070027AAC1 /* mongodump.airpair.tags.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = mongodump.airpair.tags.bson; sourceTree = "<group>"; };
 		16C29E611E6AE5070027AAC1 /* test.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.bson; sourceTree = "<group>"; };
+		16ED55E31E6D6ED9009AF2DC /* identities.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = identities.bson; sourceTree = "<group>"; };
+		16ED55E61E6DC11D009AF2DC /* clerks.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = clerks.bson; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,6 +228,9 @@
 		16C29E5F1E6AE5070027AAC1 /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				16ED55E61E6DC11D009AF2DC /* clerks.bson */,
+				16ED55E31E6D6ED9009AF2DC /* identities.bson */,
+				16A50C3F1E6D68BD00A6BA6D /* test2.bson */,
 				16C29E601E6AE5070027AAC1 /* mongodump.airpair.tags.bson */,
 				16C29E611E6AE5070027AAC1 /* test.bson */,
 			);
@@ -247,10 +264,7 @@
 		16C29E071E6A97F20027AAC1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				KnownAssetTags = (
-					New,
-				);
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = "Mario Cornejo";
 				TargetAttributes = {
 					16C29E0E1E6A97F20027AAC1 = {
@@ -281,7 +295,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16C29E651E6AE9300027AAC1 /* test.bson in Resources */,
+				16ED55E81E6DC12B009AF2DC /* test2.bson in Resources */,
+				16ED55E91E6DC12B009AF2DC /* test.bson in Resources */,
+				16ED55E41E6D6ED9009AF2DC /* identities.bson in Resources */,
+				16ED55E71E6DC11D009AF2DC /* clerks.bson in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,6 +337,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -367,6 +385,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -424,6 +443,7 @@
 				16C29E181E6A97F20027AAC1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

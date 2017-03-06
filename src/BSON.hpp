@@ -18,13 +18,15 @@ using namespace rapidjson;
 class BSON {
 private:
     std::vector<char> bson;
-    Document doc;
-    Document::AllocatorType& allocator = doc.GetAllocator();
-    
-    void parseDocument(std::vector<char> input);
-    string extractObjectId(std::vector<char>::iterator it);
+    std::vector<Document> documents;
+    Document parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
     string parseestring(std::vector<char>::iterator it);
-    double parsedouble(std::vector<char>::iterator it);
+    
+    double parsedouble(std::vector<char>::iterator it); // 01
+    string parsestring(std::vector<char>::iterator it); // 02
+    
+    string extractObjectId(std::vector<char>::iterator it); // 07
+    
 public:
     BSON(std::vector<char> input);
     void parse();

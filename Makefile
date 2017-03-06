@@ -27,6 +27,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
 	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	cp samples/test.bson bin/test.bson
+	cp samples/test2.bson bin/test2.bson
 
 clean:
 	@echo " Cleaning..."; 

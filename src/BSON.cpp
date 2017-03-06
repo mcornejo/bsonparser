@@ -15,7 +15,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-#define DEBUG true
+#define DEBUG_APP true
 
 using namespace std;
 using namespace rapidjson;
@@ -23,84 +23,121 @@ using namespace rapidjson;
 BSON::BSON(std::vector<char> input){
     cout << "Object BSON created\n";
     bson = input;
+    
+}
+
+int extractint32(std::vector<char>::iterator it){
+    int size ;
+    
+    char buffer[sizeof(int)];
+    
+    for(int i = 0; i<4; i++){
+        cout << "bufer " << i << ": " << (int)*it << "\n";
+        buffer[i] = (int)*it;
+        it++;
+    }
+    std::memcpy(&size, buffer, sizeof(size));
+    
+    cout << "extractint32 " << size << "\n";
+    return size;
+}
+
+Document BSON::parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end){
+    Document doc;
+    Document::AllocatorType& allocator = doc.GetAllocator();
     doc.SetObject();
-}
-
-void BSON::parseDocument(std::vector<char> input){
-    Value v;
-    Value document(kArrayType);
     
-    // RECEIVE THE ARRAY CUT ALREADY. AND PARSE FROM BEGINING AND END.
-    
-    //return v;
-}
-
-void BSON::dump() {
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    doc.Accept(writer);
-    std::cout << buffer.GetString() << std::endl;
-}
-
-void BSON::parse() {
-    
-    if (bson.size() == 0)
-        return;
-    
-    int size = 0;
-    int i = 0;  // counter.
-    // First process the first 4 bytes to get the int32 with the size:
-    
-    for (int i = 0; i < 4; ++i) {
-        size += bson[i] << (i * 8);    // |= could have also been used
-    }
-    
-    if(DEBUG){
-    cout << "size: " << size << "\n";
-    
-    for(int i : bson){
-        cout << "i: " << i << "\n";
-    }
-    cout << "END \n";
-    }
-    
-    // main loop
-
-    for (std::vector<char>::iterator it = bson.begin()+4 ; it != bson.end(); ++it, i++){
+    int i = 0;
+    for (std::vector<char>::iterator it = begin ; it != end; ++it, i++){
         
-        if(DEBUG){
-        cout << "i: "<< i << ":" << (int)*it << "\n";
+        if(DEBUG_APP){
+            cout << "i"<< i << ":" << (int)*it << "\n";
         }
         
         switch((int)*it) {
             case 1:
             {
+                if (DEBUG)
+                    cout << "CASE 1\n";
+                
                 string e_string_double = parseestring(++it);
                 Value key_double(e_string_double.c_str(), (int)e_string_double.size(), allocator);
-                it = it + e_string_double.size() + 1;
+                it += e_string_double.size() + 1;
                 
                 double num = parsedouble(it);
+                it += sizeof(double); // this could be 7 as well.
+                
                 Value numV(num);
                 
                 doc.AddMember(key_double, numV, allocator);
-                if(DEBUG){
+                if(DEBUG_APP){
                     cout << "doub: " << e_string_double << "\n";
                     cout << "value: " << num << "\n";
                 }
                 break;
             }
             case 2:
+            {
+                if (DEBUG)
+                    cout << "CASE 2\n";
+                
+                string e_string_string = parseestring(++it);
+                Value key_string(e_string_string.c_str(), (int)e_string_string.size(), allocator);
+                it += e_string_string.size() + 1;  // string + \0
+                
+                string stringVal = parsestring(it);
+                it += stringVal.size() + 1 + 3; // string + \0 + size_int
+                
+                Value stringV(stringVal.c_str(), (int)stringVal.size(), allocator);
+                
+                doc.AddMember(key_string, stringV, allocator);
+                if(DEBUG_APP){
+                    cout << "key: " << e_string_string << "\n";
+                    cout << "value: " << stringVal << "\n";
+                }
+                
                 break;
+            }
             case 3:
+            {
+                if (DEBUG)
+                    cout << "CASE 3\n";
+                
+                string e_string_doc = parseestring(++it);
+                Value key_string(e_string_doc.c_str(), (int)e_string_doc.size(), allocator);
+                it += e_string_doc.size() + 1;  //  string + \0
+                
+                int doc_size = extractint32(it);
+                Value object_json(kObjectType);
+                
+                
+                
                 break;
+            }
             case 4:
+            {
+                if (DEBUG)
+                    cout << "CASE 4\n";
                 break;
+            }
             case 5:
+            {
+                if (DEBUG)
+                    cout << "CASE 5\n";
                 break;
+            }
             case 6:
+            {
+                if (DEBUG)
+                    cout << "CASE 6\n";
                 break;
+            }
             case 7:  // ObjectId
             {
+                
+                if (DEBUG)
+                    cout << "CASE 7\n";
+                
                 string e_string = parseestring(++it);
                 Value key(e_string.c_str(), (int)e_string.size(), allocator);
                 // we move the pointer the size of the e_string
@@ -113,27 +150,77 @@ void BSON::parse() {
                 
                 doc.AddMember(key, oidV, allocator);
                 
-                if(DEBUG){
-                cout << "oid: " << oid << "\n";
-                cout << "e_string: " << e_string << "\n";
+                if(DEBUG_APP){
+                    cout << "oid: " << oid << "\n";
+                    cout << "e_string: " << e_string << "\n";
                 }
                 break;
             }
         }
     }
+
+    return doc;
 }
 
-
-string BSON::extractObjectId(std::vector<char>::iterator it){
-    char buffer[25];
-    for(int i =0; i <12; i++){
-        sprintf(&buffer[2*i], "%02x", (unsigned char)*it);
-        cout << "it: " << (int)*it << "\n";
-        it++;
-    }
+void BSON::dump() {
     
-    return string(buffer);
+    for(auto &&doc : documents){
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        doc.Accept(writer);
+        std::cout << buffer.GetString() << std::endl;
+    }
 }
+
+
+
+
+void BSON::parse() {
+    
+    int total_size = (int)bson.size();
+    int partial_size = 0;
+
+    if (total_size == 0)
+        return;
+    else
+        cout << "total_size: " << total_size << "\n";
+    
+    int i = 0;  // counter.
+    
+    
+    
+    // main loop
+
+    for (std::vector<char>::iterator it = bson.begin() ; partial_size < total_size; ++it, i++){
+        // First process the first 4 bytes to get the int32 with the size:
+        int current_size = extractint32(it);
+        partial_size += current_size;
+        
+        if(current_size > total_size)
+            return;
+        
+        it += 4;
+        
+        if(DEBUG_APP == false){
+            for(int i = 0; i < current_size; i++){
+                cout << "i" << i << ":" << (int)bson[i] << "\n";
+            }
+            cout << "THE END\n";
+        }
+        
+        cout << "current size: " << current_size << "\n";
+        
+        documents.push_back(parseDocument(it, it+current_size-4));
+        it += current_size -5;  // the next byte to process -(4 + 1)
+
+    }
+}
+
+
+
+
+
+
 
 string BSON::parseestring(std::vector<char>::iterator it){
     string output;
@@ -144,7 +231,7 @@ string BSON::parseestring(std::vector<char>::iterator it){
     return output;
 }
 
-double BSON::parsedouble(std::vector<char>::iterator it){
+double BSON::parsedouble(std::vector<char>::iterator it){  //01
     double output;
     char buffer[sizeof(double)];
     
@@ -156,7 +243,27 @@ double BSON::parsedouble(std::vector<char>::iterator it){
     return output;
 }
 
+string BSON::parsestring(std::vector<char>::iterator it){ // 02
+    string output;
+    //int size = extractint32(it);
+    it += 4;
+    output = parseestring(it);
+    return output;
+}
 
+
+
+string BSON::extractObjectId(std::vector<char>::iterator it){ // 07
+    char buffer[25];
+    for(int i =0; i <12; i++){
+        sprintf(&buffer[2*i], "%02x", (unsigned char)*it);
+        cout << "it: " << (int)*it << "\n";
+        it++;
+    }
     
+    return string(buffer);
+}
+
+
     // Let's continue with the first byte of the bson: the 5 element of the array.
 
