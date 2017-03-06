@@ -21,6 +21,8 @@ private:
     std::vector<Document> documents;
     Document parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
     string parseestring(std::vector<char>::iterator it);
+    Value parseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
+    string parseDatetime(std::vector<char>::iterator it);
     
     double parsedouble(std::vector<char>::iterator it); // 01
     string parsestring(std::vector<char>::iterator it); // 02
