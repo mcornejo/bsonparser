@@ -16,12 +16,12 @@ int main(int argc, const char * argv[]) {
     
     BSON parser(buffer);
     
-    parser.parse();
+    parser.Parse();
     
     cout << "Finished\n";
     
     cout << "Dumping\n";
-    parser.dump();
+    parser.Dump();
     
     return 0;
 }

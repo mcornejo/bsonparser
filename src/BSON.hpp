@@ -21,29 +21,41 @@ class BSON {
 private:
     std::vector<char> bson;
     std::vector<Value> documents;
-    Document document_array;
+    
     Value parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
     
     void ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
     void ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
-    string ParseE_String(std::vector<char>::iterator &it);
+    string ParseEName(std::vector<char>::iterator &it);
     
-    Value &ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    void ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 01
     
-    Value &ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
-    string parseDatetime(std::vector<char>::iterator it);
     
-    double ParseDouble(std::vector<char>::iterator &it); // 01
-    string ParseString(std::vector<char>::iterator &it); // 02
+   // string ExtractDatetime(std::vector<char>::iterator it);
     
-    string ExtractObjectId(std::vector<char>::iterator &it); // 07
+
+  //  string ParseString(std::vector<char>::iterator &it); // 02
+    
+   // string ExtractObjectId(std::vector<char>::iterator &it); // 07
+    
+    
+    
+    void ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 07
+    
+    void ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 09
+    
+    void ParseArray(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 04
+    
+    void ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); //03
+    
+    void ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); //02
     
 public:
     BSON(std::vector<char> input);
-    void parse();
-    void dump();
+    void Parse();
+    void Dump();
 };
 
 
