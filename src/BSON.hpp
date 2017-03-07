@@ -31,20 +31,28 @@ private:
     
     void ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 01
 
-    
-    void ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 07
-    
-    void ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 09
-    
-    void ParseArray(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 04
+    void ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); //02
     
     void ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); //03
     
-    void ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); //02
+    void ParseArray(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 04
+    
+    void ParseBinary(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 05
+    
+    void ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 07
+    
+    void ParseBoolean(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 08 
+    
+    void ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 09
+    
+    
+    
+    
+    
+    
     
 public:
     BSON(std::vector<char> input);
-    std::vector<Value> GetDocuments();
     void Parse();
     void Dump();
 };

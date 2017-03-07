@@ -30,55 +30,6 @@ BSON::BSON(std::vector<char> input){
 }
 
 
-int ExtractInt32(std::vector<char>::iterator &it){
-    int32_t size ;
-    
-    char buffer[sizeof(int32_t)];
-    
-    for(int i = 0; i<4; i++){
-        cout << "bufer " << i << ": " << (int)*it << "\n";
-        buffer[i] = (int)*it;
-        it++;
-    }
-    std::memcpy(&size, buffer, sizeof(int32_t));
-    cout << "extractint32 " << size << "\n";
-    return size;
-}
-
-string ExtractObjectId(std::vector<char>::iterator &it){
-    char buffer[25];
-    for(int i =0; i <12; i++){
-        sprintf(&buffer[2*i], "%02x", (unsigned char)*it);
-        cout << "it: " << (int)*it << "\n";
-        it++;
-    }
-    it--;
-    
-    return string(buffer);
-}
-
-string ExtractString(std::vector<char>::iterator &it){
-    
-    string output;
-    //int size = extractint32(it);
-    it += 4;
-    
-    while(*it != 0){
-        output += *it;
-        it++;
-    }
-    //it++;
-    return output;
-    
-    /*string output;
-    while(*it != 0){
-        output += *it;
-        it++;
-    }
-    it++;
-    return output;
-     */
-}
 
 void BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
     
@@ -116,14 +67,14 @@ void BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<cha
             }
             case 5:
             {
-                if (DEBUG_APP)
-                    cout << "CASE 5\n";
+                ParseBinary(it, doc, allocator, true);
                 break;
             }
             case 6:
             {
                 if (DEBUG_APP)
                     cout << "CASE 6\n";
+                // Deprecated
                 break;
             }
             case 7:  // ObjectId
@@ -184,14 +135,14 @@ void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::i
             }
             case 5:
             {
-                if (DEBUG_APP)
-                    cout << "CASE 5\n";
+                ParseBinary(it, doc, allocator, false);
                 break;
             }
             case 6:
             {
                 if (DEBUG_APP)
                     cout << "CASE 6\n";
+                // DEPRECATED
                 break;
             }
             case 7:  // ObjectId
@@ -215,6 +166,54 @@ void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::i
 
 
 
+// Auxiliary Functios
+
+int ExtractInt32(std::vector<char>::iterator &it){
+    int32_t size ;
+    
+    char buffer[sizeof(int32_t)];
+    
+    for(int i = 0; i<4; i++){
+        cout << "bufer " << i << ": " << (int)*it << "\n";
+        buffer[i] = (int)*it;
+        it++;
+    }
+    std::memcpy(&size, buffer, sizeof(int32_t));
+    cout << "extractint32 " << size << "\n";
+    return size;
+}
+
+string ExtractObjectId(std::vector<char>::iterator &it){
+    char buffer[25];
+    for(int i =0; i <12; i++){
+        sprintf(&buffer[2*i], "%02x", (unsigned char)*it);
+        cout << "it: " << (int)*it << "\n";
+        it++;
+    }
+    it--;
+    
+    return string(buffer);
+}
+
+string ExtractString(std::vector<char>::iterator &it){
+    string output;
+    it += 4;
+    while(*it != 0){
+        output += *it;
+        it++;
+    }
+    return output;
+}
+
+string ExtractBinaryAsString(std::vector<char>::iterator &it, int size){
+    std::stringstream output;
+    
+    for(int i =0; i < size; i++){
+        output << std::hex << (int)*it;
+        it++;
+    }
+    return output.str();
+}
 
 
 
@@ -285,10 +284,6 @@ void BSON::Parse() {
 
 
 
-
-
-
-
 string BSON::ParseEName(std::vector<char>::iterator &it){
     string output;
     while(*it != 0){
@@ -299,7 +294,7 @@ string BSON::ParseEName(std::vector<char>::iterator &it){
     return output;
 }
 
-string ExtractDatetime(std::vector<char>::iterator &it){  //09
+string ExtractDatetime(std::vector<char>::iterator &it){
     int64_t mid;
     char buffer[sizeof(int64_t)];
     for(int i = 0; i<8; i++){
@@ -314,7 +309,7 @@ string ExtractDatetime(std::vector<char>::iterator &it){  //09
     return os.str();
 }
 
-double ExtractDouble(std::vector<char>::iterator &it){  //01
+double ExtractDouble(std::vector<char>::iterator &it){
     double output;
     char buffer[sizeof(double)];
     
@@ -327,35 +322,12 @@ double ExtractDouble(std::vector<char>::iterator &it){  //01
     return output;
 }
 
-
-
-void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+bool ExtractBoolean(std::vector<char>::iterator &it){
     
-    if (DEBUG_APP)
-        cout << "CASE 2\n";
-    
-    string e_string_string = ParseEName(++it);
-    Value key_string(e_string_string.c_str(), (int)e_string_string.size(), allocator);
-    
-    cout << "CASE2: " << (int)*it << "\n";
-    
-    string stringVal = ExtractString(it);
-    
-    Value stringV(stringVal.c_str(), (int)stringVal.size(), allocator);
-    
-     if(IsArray){
-         doc.PushBack(Value(stringV, allocator).Move(), allocator);
-     } else {
-         doc.AddMember(Value(key_string, allocator).Move(), Value(stringV, allocator).Move(), allocator);
-     }
-    
-    if(DEBUG_APP){
-        cout << "key: " << e_string_string << "\n";
-        cout << "value: " << stringVal << "\n";
-    }
-
-    
-    
+    if ((int)*it == 0)
+        return false;
+    else
+        return true;
 }
 
 
@@ -382,52 +354,57 @@ void BSON::ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::Al
         cout << "doub: " << e_string_double << "\n";
         cout << "value: " << num << "\n";
     }
-
-}
-
-
-void BSON::ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
-    if(DEBUG_APP)
-        cout << "CASE 7\n";
     
-    string e_string = ParseEName(++it);
-    Value key(e_string.c_str(), (int)e_string.size(), allocator);
-    string oid = ExtractObjectId(it);
-    Value oidV(oid.c_str(), (int)oid.size(), allocator);
-   
-    if(DEBUG_APP){
-        cout << "e_string: " << e_string << "\n";
-        cout << "oid: " << oid << "\n";
-    }
-    if(IsArray){
-        doc.PushBack(Value(oidV, allocator).Move(), allocator);
-    } else {
-        doc.AddMember(Value(key, allocator).Move(), Value(oidV, allocator).Move(), allocator);
-    }
 }
 
 
-void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    
     if (DEBUG_APP)
-        cout << "CASE 9\n";
+        cout << "CASE 2\n";
     
-    string e_string_datetime = ParseEName(++it);
-    cout << "date_key: " << e_string_datetime << "\n";
-    Value key_datetime(e_string_datetime.c_str(), (int)e_string_datetime.size(), allocator);
+    string e_string_string = ParseEName(++it);
+    Value key_string(e_string_string.c_str(), (int)e_string_string.size(), allocator);
     
-    string dateVal = ExtractDatetime(it);
-    cout << "date: " << dateVal << "\n";
-    Value dateV(dateVal.c_str(), (int)dateVal.size(), allocator);
+    
+    string stringVal = ExtractString(it);
+    
+    Value stringV(stringVal.c_str(), (int)stringVal.size(), allocator);
+    
+     if(IsArray){
+         doc.PushBack(Value(stringV, allocator).Move(), allocator);
+     } else {
+         doc.AddMember(Value(key_string, allocator).Move(), Value(stringV, allocator).Move(), allocator);
+     }
     
     if(DEBUG_APP){
-        cout << "date_key: " << e_string_datetime << "\n";
-        cout << "date: " << dateVal << "\n";
+        cout << "key: " << e_string_string << "\n";
+        cout << "value: " << stringVal << "\n";
+    }
+}
+
+
+void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    
+    if (DEBUG_APP){
+        cout << "CASE 3\n";
     }
     
+    string e_string_doc = ParseEName(++it);
+    Value key_doc(e_string_doc.c_str(), (int)e_string_doc.size(), allocator);
+    
+    int doc_size = ExtractInt32(it);
+    
+    Value object_json(kObjectType);
+    Value inner_doc(kObjectType);
+    
+    ParseIterator(it, it+doc_size -5, inner_doc, allocator);
+    it += doc_size -5;
+    //it++;
     if(IsArray){
-        doc.PushBack(Value(dateV, allocator).Move(), allocator);
+        doc.PushBack(Value(inner_doc, allocator).Move(), allocator);
     } else {
-        doc.AddMember(Value(key_datetime, allocator).Move(), Value(dateV, allocator).Move(), allocator);
+        doc.AddMember(Value(key_doc, allocator).Move(), Value(inner_doc, allocator).Move(), allocator);
     }
 }
 
@@ -454,27 +431,90 @@ void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::All
     }
 }
 
-void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+void BSON::ParseBinary(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    if (DEBUG_APP)
+        cout << "CASE 5\n";
     
-    if (DEBUG_APP){
-        cout << "CASE 3\n";
+    string e_string_string = ParseEName(++it);
+    Value key_string(e_string_string.c_str(), (int)e_string_string.size(), allocator);
+
+    int size = ExtractInt32(it);
+    
+    string output = ExtractBinaryAsString(it, size);
+    
+    Value stringV(output.c_str(), (int)output.size(), allocator);
+    
+    if(IsArray){
+        doc.PushBack(Value(stringV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key_string, allocator).Move(), Value(stringV, allocator).Move(), allocator);
+    }
+
+    
+}
+
+
+void BSON::ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    if(DEBUG_APP)
+        cout << "CASE 7\n";
+    
+    string e_string = ParseEName(++it);
+    Value key(e_string.c_str(), (int)e_string.size(), allocator);
+    string oid = ExtractObjectId(it);
+    Value oidV(oid.c_str(), (int)oid.size(), allocator);
+    
+    if(DEBUG_APP){
+        cout << "e_string: " << e_string << "\n";
+        cout << "oid: " << oid << "\n";
+    }
+    if(IsArray){
+        doc.PushBack(Value(oidV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key, allocator).Move(), Value(oidV, allocator).Move(), allocator);
+    }
+}
+
+void BSON::ParseBoolean(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    
+    if(DEBUG_APP)
+        cout << "CASE 8\n";
+
+    string e_string = ParseEName(++it);
+    Value key(e_string.c_str(), (int)e_string.size(), allocator);
+    
+    bool res = ExtractBoolean(it);
+    Value resV(res);
+    
+    if(IsArray){
+        doc.PushBack(Value(resV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key, allocator).Move(), Value(resV, allocator).Move(), allocator);
+    }
+
+    
+}
+
+void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    if (DEBUG_APP)
+        cout << "CASE 9\n";
+    
+    string e_string_datetime = ParseEName(++it);
+    cout << "date_key: " << e_string_datetime << "\n";
+    Value key_datetime(e_string_datetime.c_str(), (int)e_string_datetime.size(), allocator);
+    
+    string dateVal = ExtractDatetime(it);
+    cout << "date: " << dateVal << "\n";
+    Value dateV(dateVal.c_str(), (int)dateVal.size(), allocator);
+    
+    if(DEBUG_APP){
+        cout << "date_key: " << e_string_datetime << "\n";
+        cout << "date: " << dateVal << "\n";
     }
     
-    string e_string_doc = ParseEName(++it);
-    Value key_doc(e_string_doc.c_str(), (int)e_string_doc.size(), allocator);
-    
-    int doc_size = ExtractInt32(it);
-    
-    Value object_json(kObjectType);
-    Value inner_doc(kObjectType);
-    
-    ParseIterator(it, it+doc_size -5, inner_doc, allocator);
-    it += doc_size -5;
-    //it++;
     if(IsArray){
-        doc.PushBack(Value(inner_doc, allocator).Move(), allocator);
+        doc.PushBack(Value(dateV, allocator).Move(), allocator);
     } else {
-        doc.AddMember(Value(key_doc, allocator).Move(), Value(inner_doc, allocator).Move(), allocator);
+        doc.AddMember(Value(key_datetime, allocator).Move(), Value(dateV, allocator).Move(), allocator);
     }
 }
 
