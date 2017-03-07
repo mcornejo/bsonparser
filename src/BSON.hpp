@@ -11,6 +11,8 @@
 #include <vector>
 #include <stdio.h>
 #include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -19,17 +21,18 @@ class BSON {
 private:
     std::vector<char> bson;
     std::vector<Value> documents;
+    Document document_array;
     Value parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
     
-    Value &ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    void ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
-    Value &ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    void ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
     string ParseE_String(std::vector<char>::iterator &it);
     
-    Value ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
+    Value &ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
-    Value &ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
+    Value &ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     string parseDatetime(std::vector<char>::iterator it);
     
     double ParseDouble(std::vector<char>::iterator &it); // 01

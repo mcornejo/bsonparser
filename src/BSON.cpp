@@ -59,7 +59,7 @@ int ExtractInt32(std::vector<char>::iterator &it){
     return size;
 }
 
-Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
+void BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
     
     int i = 0;
     for (std::vector<char>::iterator it = begin ; it != end; ++it, i++){
@@ -85,7 +85,7 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
                 
                 Value numV(num);
                 
-                doc.PushBack(numV, allocator);
+                doc.PushBack(Value(numV, allocator).Move(), allocator);
                 if(DEBUG_APP){
                     cout << "doub: " << e_string_double << "\n";
                     cout << "value: " << num << "\n";
@@ -106,7 +106,7 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
                 it--;
                 Value stringV(stringVal.c_str(), (int)stringVal.size(), allocator);
                 
-                doc.PushBack(stringV, allocator);
+                doc.PushBack(Value(stringV, allocator).Move(), allocator);
                 if(DEBUG_APP){
                     cout << "key: " << e_string_string << "\n";
                     cout << "value: " << stringVal << "\n";
@@ -127,10 +127,11 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
                 int doc_size = ExtractInt32(it);
                 
                 Value object_json(kObjectType);
+                Value inner_doc(kObjectType);
                 
-                object_json = ParseObject(it, it+doc_size -4, allocator);
+                ParseIterator(it, it+doc_size -4, inner_doc, allocator);
                 it += doc_size -5;
-                doc.PushBack(object_json, allocator);
+                doc.PushBack(Value(inner_doc, allocator).Move(), allocator);
                 
                 if(DEBUG){
                     cout << "END DOCUMENT: " << i << "\n";
@@ -172,7 +173,7 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
                 
                 Value oidV(oid.c_str(), (int)oid.size(), allocator);
                 
-                doc.PushBack(oidV, allocator);
+                doc.PushBack(Value(oidV, allocator).Move(), allocator);
                 
                 if(DEBUG_APP){
                     cout << "oid: " << oid << "\n";
@@ -204,7 +205,7 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
                     cout << "date: " << dateVal << "\n";
                 }
                 
-                doc.PushBack(dateV, allocator);
+                doc.PushBack(Value(dateV, allocator).Move(), allocator);
                 
                 
                 
@@ -214,11 +215,10 @@ Value &BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<c
         }
     }
     
-    return doc;
 }
 
 
-Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
+void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
     
     int i = 0;
     for (std::vector<char>::iterator it = begin ; it != end; ++it, i++){
@@ -244,7 +244,7 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                 
                 Value numV(num);
                 
-                doc.AddMember(key_double, numV.Move(), allocator);
+                doc.AddMember(Value(key_double, allocator).Move(), Value(numV, allocator).Move(), allocator);
                 if(DEBUG_APP){
                     cout << "doub: " << e_string_double << "\n";
                     cout << "value: " << num << "\n";
@@ -265,7 +265,7 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                 it--;
                 Value stringV(stringVal.c_str(), (int)stringVal.size(), allocator);
                 
-                doc.AddMember(key_string, stringV.Move(), allocator);
+                doc.AddMember(Value(key_string, allocator).Move(), Value(stringV, allocator).Move(), allocator);
                 if(DEBUG_APP){
                     cout << "key: " << e_string_string << "\n";
                     cout << "value: " << stringVal << "\n";
@@ -288,11 +288,11 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                 Value object_json(kObjectType);
                 
                 Value inner_doc(kObjectType);
-                object_json = ParseIterator(it, it+doc_size -4, inner_doc, allocator).GetObject();
+                ParseIterator(it, it+doc_size -4, inner_doc, allocator);
                 
                 cout << "object_json: " << &object_json << "\n";
                 it += doc_size -5;
-                doc.AddMember(key_doc, object_json.Move(), allocator);
+                doc.AddMember(Value(key_doc, allocator).Move(), Value(inner_doc, allocator).Move(), allocator);
                 
                 if(DEBUG){
                     cout << "END DOCUMENT: " << i << "\n";
@@ -307,15 +307,15 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                     cout << "INIT ARRAY: " << i << "\n";
                 }
                 string e_string_array = ParseE_String(++it);
-                Value key_doc(e_string_array.c_str(), (int)e_string_array.size(), allocator);
+                Value key_array(e_string_array.c_str(), (int)e_string_array.size(), allocator);
                 
                 int doc_size = ExtractInt32(it);
                 
                 Value array_json(kArrayType);
                 
-                array_json = ParseArray(it, it+doc_size -4, allocator);
+                ParseIteratorArray(it, it+doc_size -4, array_json, allocator);
                 it += doc_size -5;
-                doc.AddMember(key_doc, array_json, allocator);
+                doc.AddMember(Value(key_array, allocator).Move(), Value(array_json, allocator).Move(), allocator);
                 
                 
                 break;
@@ -348,7 +348,7 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                 
                 Value oidV(oid.c_str(), (int)oid.size(), allocator);
                 
-                doc.AddMember(key, oidV, allocator);
+                doc.AddMember(Value(key, allocator).Move(), Value(oidV, allocator).Move(), allocator);
                 
                 if(DEBUG_APP){
                     cout << "oid: " << oid << "\n";
@@ -380,7 +380,7 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                     cout << "date: " << dateVal << "\n";
                 }
                 
-                doc.AddMember(key_datetime, dateV, allocator);
+                doc.AddMember(Value(key_datetime, allocator).Move(), Value(dateV, allocator).Move(), allocator);
                 
                 
                 
@@ -389,21 +389,21 @@ Value &BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>:
                 
         }
     }
-    
+}
+
+
+Value &BSON::ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator){
+    //Value inner_doc(kObjectType);
+    //Value &cp = ParseIterator(begin, end, doc, allocator).GetObject();
+    ParseIterator(begin, end, doc, allocator);
     return doc;
 }
 
-
-Value BSON::ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator){
-    Value doc(kObjectType);
-    //Value &cp = ParseIterator(begin, end, doc, allocator).GetObject();
-    return ParseIterator(begin, end, doc, allocator).GetObject();
-}
-
-Value &BSON::ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator){
-    Value doc(kArrayType);
+Value &BSON::ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value & doc, Document::AllocatorType& allocator){
+    //Value &doc(kArrayType);
     //Value cp = ParseIteratorArray(begin, end, doc, allocator); //.GetArray();
-    return ParseIteratorArray(begin, end, doc, allocator);
+    ParseIteratorArray(begin, end, doc, allocator);
+    return doc;
 }
 
 
@@ -413,13 +413,13 @@ Value BSON::parseDocument(std::vector<char>::iterator begin, std::vector<char>::
     Document doc;
     Document::AllocatorType& allocator = doc.GetAllocator();
     doc.SetObject();
-
-    return ParseIterator(begin, end, doc, allocator).GetObject();
+    ParseIterator(begin, end, doc, allocator);
+    return doc.GetObject();
 }
 
 void BSON::dump() {
     
-    for(auto &&doc : documents){
+    for(auto & doc : documents){
         StringBuffer buffer;
         Writer<StringBuffer> writer(buffer);
         doc.Accept(writer);
@@ -444,7 +444,11 @@ void BSON::parse() {
     
     cout << "SIZE size64: " << sizeof(int64_t) << "\n";
     
-    
+    Document doc;
+    Document::AllocatorType& allocator = doc.GetAllocator();
+    doc.SetObject();
+
+    document_array.SetArray();
     // main loop
 
     for (std::vector<char>::iterator it = bson.begin() ; partial_size < total_size; ++it, i++){
@@ -467,11 +471,13 @@ void BSON::parse() {
         cout << "current size: " << current_size << "\n";
         
 
-        Document doc;
-        Document::AllocatorType& allocator = doc.GetAllocator();
-        doc.SetObject();
+        ParseIterator(it, it+current_size-4, doc, allocator);
         
-        documents.push_back(ParseIterator(it, it+current_size-4, doc, allocator).GetObject());
+        cout << "out[_id]: " << doc["_id"].GetString() << "\n";
+        
+        documents.push_back(doc.GetObject());
+        
+        
         it += current_size -5;  // the next byte to process -(4 + 1)
 
     }
