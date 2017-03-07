@@ -21,8 +21,7 @@ class BSON {
 private:
     std::vector<char> bson;
     std::vector<Value> documents;
-    
-    Value parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
+
     
     void ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
@@ -31,16 +30,7 @@ private:
     string ParseEName(std::vector<char>::iterator &it);
     
     void ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray); // 01
-    
-    
-   // string ExtractDatetime(std::vector<char>::iterator it);
-    
 
-  //  string ParseString(std::vector<char>::iterator &it); // 02
-    
-   // string ExtractObjectId(std::vector<char>::iterator &it); // 07
-    
-    
     
     void ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 07
     
@@ -54,6 +44,7 @@ private:
     
 public:
     BSON(std::vector<char> input);
+    std::vector<Value> GetDocuments();
     void Parse();
     void Dump();
 };

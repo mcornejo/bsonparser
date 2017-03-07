@@ -22,7 +22,9 @@ using namespace std;
 using namespace rapidjson;
 
 BSON::BSON(std::vector<char> input){
-    cout << "Object BSON created\n";
+    if(DEBUG_APP) {
+        cout << "Object BSON created\n";
+    }
     bson = input;
     
 }
@@ -108,19 +110,19 @@ void BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<cha
             }
             case 4:
             {
-                if (DEBUG)
+                if (DEBUG_APP)
                     cout << "CASE 4\n";
                 break;
             }
             case 5:
             {
-                if (DEBUG)
+                if (DEBUG_APP)
                     cout << "CASE 5\n";
                 break;
             }
             case 6:
             {
-                if (DEBUG)
+                if (DEBUG_APP)
                     cout << "CASE 6\n";
                 break;
             }
@@ -182,13 +184,13 @@ void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::i
             }
             case 5:
             {
-                if (DEBUG)
+                if (DEBUG_APP)
                     cout << "CASE 5\n";
                 break;
             }
             case 6:
             {
-                if (DEBUG)
+                if (DEBUG_APP)
                     cout << "CASE 6\n";
                 break;
             }
@@ -329,7 +331,7 @@ double ExtractDouble(std::vector<char>::iterator &it){  //01
 
 void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
-    if (DEBUG)
+    if (DEBUG_APP)
         cout << "CASE 2\n";
     
     string e_string_string = ParseEName(++it);
@@ -358,7 +360,7 @@ void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::Al
 
 
 void BSON::ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
-    if (DEBUG)
+    if (DEBUG_APP)
         cout << "CASE 1\n";
     
     string e_string_double = ParseEName(++it);
@@ -406,7 +408,7 @@ void BSON::ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::
 
 
 void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
-    if (DEBUG)
+    if (DEBUG_APP)
         cout << "CASE 9\n";
     
     string e_string_datetime = ParseEName(++it);
@@ -431,7 +433,7 @@ void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Documen
 
 
 void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
-    if (DEBUG) {
+    if (DEBUG_APP) {
         cout << "CASE 4\n";
     }
     
@@ -454,7 +456,7 @@ void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::All
 
 void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
-    if (DEBUG){
+    if (DEBUG_APP){
         cout << "CASE 3\n";
     }
     
