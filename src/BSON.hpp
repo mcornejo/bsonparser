@@ -18,16 +18,24 @@ using namespace rapidjson;
 class BSON {
 private:
     std::vector<char> bson;
-    std::vector<Document> documents;
-    Document parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
-    string parseestring(std::vector<char>::iterator it);
-    Value parseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
+    std::vector<Value> documents;
+    Value parseDocument(std::vector<char>::iterator begin, std::vector<char>::iterator end);
+    
+    Value &ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    
+    Value &ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    
+    string ParseE_String(std::vector<char>::iterator &it);
+    
+    Value ParseObject(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
+    
+    Value &ParseArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Document::AllocatorType& allocator);
     string parseDatetime(std::vector<char>::iterator it);
     
-    double parsedouble(std::vector<char>::iterator it); // 01
-    string parsestring(std::vector<char>::iterator it); // 02
+    double ParseDouble(std::vector<char>::iterator &it); // 01
+    string ParseString(std::vector<char>::iterator &it); // 02
     
-    string extractObjectId(std::vector<char>::iterator it); // 07
+    string ExtractObjectId(std::vector<char>::iterator &it); // 07
     
 public:
     BSON(std::vector<char> input);
