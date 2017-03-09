@@ -23,7 +23,7 @@ private:
     std::vector<Value> documents;
 
     
-    void ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
+    void ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator, bool IsArray = false);
     
     void ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType& allocator);
     
@@ -45,10 +45,13 @@ private:
     
     void ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 09
     
+    void ParseNull(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 10
     
+    void ParseInt32(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 16
     
+    void ParseTimestamp(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 17
     
-    
+    void ParseInt64(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray = false); // 18
     
     
 public:

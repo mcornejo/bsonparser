@@ -16,7 +16,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-#define DEBUG_APP true
+#define DEBUG_APP false
 
 using namespace std;
 using namespace rapidjson;
@@ -30,135 +30,90 @@ BSON::BSON(std::vector<char> input){
 }
 
 
-
-void BSON::ParseIteratorArray(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
+void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     int i = 0;
     for (std::vector<char>::iterator it = begin ; it != end; ++it, i++){
-        
-        
-        
-        if(DEBUG_APP){
-            cout << "iai"<< i << ":" << (int)*it << "\n";
-        }
-        
-        switch((int)*it) {
-            case 1:
-            {
-                ParseDouble(it, doc, allocator, true);
-                break;
-            }
-            case 2:
-            {
-                cout << "here:\n";
-                ParseString(it, doc, allocator, true);
-                break;
-            }
-            case 3:
-            {
-                ParseDocument(it, doc, allocator, true);
-                break;
-            }
-            case 4:
-            {
-                if (DEBUG_APP)
-                    cout << "CASE 4\n";
-                break;
-            }
-            case 5:
-            {
-                ParseBinary(it, doc, allocator, true);
-                break;
-            }
-            case 6:
-            {
-                if (DEBUG_APP)
-                    cout << "CASE 6\n";
-                // Deprecated
-                break;
-            }
-            case 7:  // ObjectId
-            {
-                
-                ParseObjectID(it, doc, allocator, true);
-                break;
-            }
-            case 8:
-            {
-                break;
-            }
-            case 9:
-            {
-                ParseUTCDatetime(it, doc, allocator, true);
-                break;
-            }
-                
-        }
-    }
     
-}
-
-
-void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator){
-    
-    int i = 0;
-    for (std::vector<char>::iterator it = begin ; it != end; ++it, i++){
-        
         
         
         if(DEBUG_APP){
             cout << "ii"<< i << ":" << (int)*it << "\n";
+            cout << "ii size: " << end - it << "\n";
         }
         
         switch((int)*it) {
             case 1:
             {
-                ParseDouble(it, doc, allocator, false);
+                ParseDouble(it, doc, allocator, IsArray);
                 break;
             }
             case 2:
             {
-                ParseString(it, doc, allocator, false);
+                ParseString(it, doc, allocator, IsArray);
                 break;
             }
             case 3:
             {
-                ParseDocument(it, doc, allocator, false);
-                cout << "parseDoc \n";
+                ParseDocument(it, doc, allocator, IsArray);
                 break;
             }
             case 4:
             {
-                ParseArray(it, doc, allocator, false);
-                cout << "parseArra \n";
+                ParseArray(it, doc, allocator, IsArray);
                 break;
             }
             case 5:
             {
-                ParseBinary(it, doc, allocator, false);
+                ParseBinary(it, doc, allocator, IsArray);
                 break;
             }
             case 6:
             {
-                if (DEBUG_APP)
-                    cout << "CASE 6\n";
                 // DEPRECATED
                 break;
             }
-            case 7:  // ObjectId
+            case 7:
             {
-                ParseObjectID(it, doc, allocator, false);
+                ParseObjectID(it, doc, allocator, IsArray);
                 break;
             }
             case 8:
             {
+                ParseBoolean(it, doc, allocator, IsArray);
                 break;
             }
-            case 9: // Datetime
+            case 9:
             {
-                ParseUTCDatetime(it, doc, allocator, false);
+                ParseUTCDatetime(it, doc, allocator, IsArray);
                 break;
             }
+                case 10:
+            {
+                ParseNull(it, doc, allocator, IsArray);
+                break;
+            }
+            case 16:
+            {
+                ParseInt32(it, doc, allocator, IsArray);
+                break;
+            }
+            case 17:
+            {
+                ParseTimestamp(it, doc, allocator, IsArray);
+                break;
+            }
+            case 18:
+            {
+                ParseInt64(it, doc, allocator, IsArray);
+                break;
+            }
+            default:
+            {
+                ParseBinary(it, doc, allocator, IsArray);
+                break;
+            }
+            
                 
         }
     }
@@ -174,12 +129,42 @@ int ExtractInt32(std::vector<char>::iterator &it){
     char buffer[sizeof(int32_t)];
     
     for(int i = 0; i<4; i++){
-        cout << "bufer " << i << ": " << (int)*it << "\n";
         buffer[i] = (int)*it;
         it++;
     }
     std::memcpy(&size, buffer, sizeof(int32_t));
-    cout << "extractint32 " << size << "\n";
+    if(DEBUG_APP)
+        cout << "extractint32 " << size << "\n";
+    return size;
+}
+
+int64_t ExtractInt64(std::vector<char>::iterator &it){
+    int64_t size ;
+    
+    char buffer[sizeof(int64_t)];
+    
+    for(int i = 0; i<8; i++){
+        buffer[i] = (int)*it;
+        it++;
+    }
+    std::memcpy(&size, buffer, sizeof(int64_t));
+    if(DEBUG_APP)
+        cout << "extractint64 " << size << "\n";
+    return size;
+}
+
+uint64_t ExtractUint64(std::vector<char>::iterator &it){
+    uint64_t size ;
+    
+    char buffer[sizeof(uint64_t)];
+    
+    for(int i = 0; i<8; i++){
+        buffer[i] = (int)*it;
+        it++;
+    }
+    std::memcpy(&size, buffer, sizeof(uint64_t));
+    if(DEBUG_APP)
+        cout << "extract_uint64 " << size << "\n";
     return size;
 }
 
@@ -187,7 +172,6 @@ string ExtractObjectId(std::vector<char>::iterator &it){
     char buffer[25];
     for(int i =0; i <12; i++){
         sprintf(&buffer[2*i], "%02x", (unsigned char)*it);
-        cout << "it: " << (int)*it << "\n";
         it++;
     }
     it--;
@@ -237,12 +221,9 @@ void BSON::Parse() {
 
     if (total_size == 0)
         return;
-    else
-        cout << "total_size: " << total_size << "\n";
+    
     
     int i = 0;  // counter.
-    
-    cout << "SIZE size64: " << sizeof(int64_t) << "\n";
     
     Document doc;
     Document::AllocatorType& allocator = doc.GetAllocator();
@@ -258,22 +239,15 @@ void BSON::Parse() {
         if(current_size > total_size)
             return;
         
-        //it += 4;
         
-        if(DEBUG_APP == false){
+        if(DEBUG_APP){
             for(int i = 0; i < current_size; i++){
                 cout << "i" << i << ":" << (int)bson[i] << "\n";
             }
             cout << "THE END\n";
         }
-        
-        cout << "current size: " << current_size << "\n";
-        
 
-        ParseIterator(it, it+current_size-4, doc, allocator);
-        
-        cout << "out[_id]: " << doc["_id"].GetString() << "\n";
-        
+        ParseIterator(it, it+current_size-5, doc, allocator);
         documents.push_back(doc.GetObject());
         
         
@@ -300,7 +274,6 @@ string ExtractDatetime(std::vector<char>::iterator &it){
     for(int i = 0; i<8; i++){
         buffer[i] = (int)*it;
         it++;
-        cout << "buffer[i]:" << buffer[i] << "\n";
     }
     it--;
     std::memcpy(&mid, buffer, sizeof(int64_t));
@@ -337,10 +310,8 @@ void BSON::ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::Al
     
     string e_string_double = ParseEName(++it);
     Value key_double(e_string_double.c_str(), (int)e_string_double.size(), allocator);
-    //it += e_string_double.size() + 1;
     
     double num = ExtractDouble(it);
-    //it += 7; // this could be 7 as well.
     
     Value numV(num);
     
@@ -383,6 +354,23 @@ void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::Al
     }
 }
 
+void BSON::ParseInt32(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    if (DEBUG_APP)
+        cout << "CASE 16\n";
+
+    string e_string_string = ParseEName(++it);
+    Value key_string(e_string_string.c_str(), (int)e_string_string.size(), allocator);
+    
+    int32_t intVal = ExtractInt32(it);
+    Value intV(intVal);
+    it--;
+    if(IsArray){
+        doc.PushBack(Value(intV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key_string, allocator).Move(), Value(intV, allocator).Move(), allocator);
+    }
+
+}
 
 void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
@@ -400,7 +388,7 @@ void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::
     
     ParseIterator(it, it+doc_size -5, inner_doc, allocator);
     it += doc_size -5;
-    //it++;
+    
     if(IsArray){
         doc.PushBack(Value(inner_doc, allocator).Move(), allocator);
     } else {
@@ -421,13 +409,14 @@ void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::All
     
     Value array_json(kArrayType);
     
-    ParseIteratorArray(it, it+doc_size -5, array_json, allocator);
+    ParseIterator(it, it+doc_size -5, array_json, allocator, true);
     it += doc_size -4;
     
     if(IsArray){
         doc.PushBack(Value(array_json, allocator).Move(), allocator);
     } else {
         doc.AddMember(Value(key_array, allocator).Move(), Value(array_json, allocator).Move(), allocator);
+        it--;
     }
 }
 
@@ -485,6 +474,11 @@ void BSON::ParseBoolean(std::vector<char>::iterator &it, Value &doc, Document::A
     bool res = ExtractBoolean(it);
     Value resV(res);
     
+    if(DEBUG_APP){
+        cout << "e_string: " << e_string << "\n";
+        cout << "bool: " << res << "\n";
+    }
+    
     if(IsArray){
         doc.PushBack(Value(resV, allocator).Move(), allocator);
     } else {
@@ -499,11 +493,9 @@ void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Documen
         cout << "CASE 9\n";
     
     string e_string_datetime = ParseEName(++it);
-    cout << "date_key: " << e_string_datetime << "\n";
     Value key_datetime(e_string_datetime.c_str(), (int)e_string_datetime.size(), allocator);
     
     string dateVal = ExtractDatetime(it);
-    cout << "date: " << dateVal << "\n";
     Value dateV(dateVal.c_str(), (int)dateVal.size(), allocator);
     
     if(DEBUG_APP){
@@ -518,6 +510,69 @@ void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Documen
     }
 }
 
+void BSON::ParseNull(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){ // 10
+    
+    if(DEBUG_APP)
+        cout << "CASE 10\n";
+    
+    string e_string = ParseEName(++it);
+    it--;
+    Value key(e_string.c_str(), (int)e_string.size(), allocator);
+    
+    Value resV;
+    
+    if(IsArray){
+        doc.PushBack(Value(resV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key, allocator).Move(), Value(resV, allocator).Move(), allocator);
+    }
+}
 
+void BSON::ParseTimestamp(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    
+    if (DEBUG_APP)
+        cout << "CASE 17\n";
+    
+    string e_string = ParseEName(++it);
+    Value key_double(e_string.c_str(), (int)e_string.size(), allocator);
+    
+    uint64_t num = ExtractUint64(it);
+    it--;
+    Value numV(num);
+    
+    if(IsArray){
+        doc.PushBack(Value(numV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key_double, allocator).Move(), Value(numV, allocator).Move(), allocator);
+    }
+    
+    if(DEBUG_APP){
+        cout << "key_timestamp: " << e_string << "\n";
+        cout << "value: " << num << "\n";
+    }
+}
 
+void BSON::ParseInt64(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
+    
+    if (DEBUG_APP)
+        cout << "CASE 18\n";
+    
+    string e_string = ParseEName(++it);
+    Value key_double(e_string.c_str(), (int)e_string.size(), allocator);
+    
+    int64_t num = ExtractInt64(it);
+    it--;
+    Value numV(num);
+    
+    if(IsArray){
+        doc.PushBack(Value(numV, allocator).Move(), allocator);
+    } else {
+        doc.AddMember(Value(key_double, allocator).Move(), Value(numV, allocator).Move(), allocator);
+    }
+    
+    if(DEBUG_APP){
+        cout << "key_int64: " << e_string << "\n";
+        cout << "value: " << num << "\n";
+    }
+}
 

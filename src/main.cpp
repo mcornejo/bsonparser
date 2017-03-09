@@ -10,16 +10,16 @@
 int main(int argc, const char * argv[]) {
     // insert code here...
     
-    //std::ifstream input("test2.bson", std::ios::binary );
+    std::ifstream input("test2.bson", std::ios::binary );
     //std::ifstream input("identities.bson", std::ios::binary );
-    std::ifstream input("clerks.bson", std::ios::binary );
+    //std::ifstream input("clerks.bson", std::ios::binary );
+    //std::ifstream input("jobs.bson", std::ios::binary );
     std::vector<char> buffer((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
     
     BSON parser(buffer);
     
     parser.Parse();
     
-    cout << "Finished\n";
     
     cout << "Dumping\n";
     parser.Dump();
