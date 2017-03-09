@@ -26,8 +26,10 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
+	@mkdir -p bin
 	@echo " $(CC) $(CXXFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CXXFLAGS) $(INC) -c -o $@ $<
-	cp samples/*.bson bin/
+	cp samples/* bin/
+	
 
 clean:
 	@echo " Cleaning..."; 
