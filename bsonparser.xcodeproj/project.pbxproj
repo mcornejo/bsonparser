@@ -9,16 +9,15 @@
 /* Begin PBXBuildFile section */
 		164D1BC91E71609D003EC8D4 /* jobs.bson in Resources */ = {isa = PBXBuildFile; fileRef = 164D1BC81E71609D003EC8D4 /* jobs.bson */; };
 		164D1BCA1E7160A2003EC8D4 /* jobs.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 164D1BC81E71609D003EC8D4 /* jobs.bson */; };
+		164D1BCB1E71DC84003EC8D4 /* mongodump.airpair.tags.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16C29E601E6AE5070027AAC1 /* mongodump.airpair.tags.bson */; };
 		16C29E2D1E6AAFFD0027AAC1 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E251E6AAFFD0027AAC1 /* Makefile */; };
 		16C29E2E1E6AAFFD0027AAC1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2B1E6AAFFD0027AAC1 /* main.cpp */; };
 		16C29E2F1E6AAFFD0027AAC1 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E2C1E6AAFFD0027AAC1 /* README.md */; };
 		16C29E5E1E6AE49F0027AAC1 /* BSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 16C29E5C1E6AE49F0027AAC1 /* BSON.cpp */; };
-		16ED55E11E6D69F8009AF2DC /* test2.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16A50C3F1E6D68BD00A6BA6D /* test2.bson */; };
 		16ED55E21E6D69F8009AF2DC /* test.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16C29E611E6AE5070027AAC1 /* test.bson */; };
 		16ED55E41E6D6ED9009AF2DC /* identities.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16ED55E31E6D6ED9009AF2DC /* identities.bson */; };
 		16ED55E51E6D6EE6009AF2DC /* identities.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16ED55E31E6D6ED9009AF2DC /* identities.bson */; };
 		16ED55E71E6DC11D009AF2DC /* clerks.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16ED55E61E6DC11D009AF2DC /* clerks.bson */; };
-		16ED55E81E6DC12B009AF2DC /* test2.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16A50C3F1E6D68BD00A6BA6D /* test2.bson */; };
 		16ED55E91E6DC12B009AF2DC /* test.bson in Resources */ = {isa = PBXBuildFile; fileRef = 16C29E611E6AE5070027AAC1 /* test.bson */; };
 		16ED55EA1E6DC155009AF2DC /* clerks.bson in CopyFiles */ = {isa = PBXBuildFile; fileRef = 16ED55E61E6DC11D009AF2DC /* clerks.bson */; };
 /* End PBXBuildFile section */
@@ -30,10 +29,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				164D1BCB1E71DC84003EC8D4 /* mongodump.airpair.tags.bson in CopyFiles */,
 				164D1BCA1E7160A2003EC8D4 /* jobs.bson in CopyFiles */,
 				16ED55EA1E6DC155009AF2DC /* clerks.bson in CopyFiles */,
 				16ED55E51E6D6EE6009AF2DC /* identities.bson in CopyFiles */,
-				16ED55E11E6D69F8009AF2DC /* test2.bson in CopyFiles */,
 				16ED55E21E6D69F8009AF2DC /* test.bson in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -42,7 +41,6 @@
 
 /* Begin PBXFileReference section */
 		164D1BC81E71609D003EC8D4 /* jobs.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = jobs.bson; sourceTree = "<group>"; };
-		16A50C3F1E6D68BD00A6BA6D /* test2.bson */ = {isa = PBXFileReference; lastKnownFileType = file; path = test2.bson; sourceTree = "<group>"; };
 		16C29E0F1E6A97F20027AAC1 /* bsonparser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bsonparser; sourceTree = BUILT_PRODUCTS_DIR; };
 		16C29E251E6AAFFD0027AAC1 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		16C29E2B1E6AAFFD0027AAC1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -235,7 +233,6 @@
 				164D1BC81E71609D003EC8D4 /* jobs.bson */,
 				16ED55E61E6DC11D009AF2DC /* clerks.bson */,
 				16ED55E31E6D6ED9009AF2DC /* identities.bson */,
-				16A50C3F1E6D68BD00A6BA6D /* test2.bson */,
 				16C29E601E6AE5070027AAC1 /* mongodump.airpair.tags.bson */,
 				16C29E611E6AE5070027AAC1 /* test.bson */,
 			);
@@ -300,7 +297,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				16ED55E81E6DC12B009AF2DC /* test2.bson in Resources */,
 				16ED55E91E6DC12B009AF2DC /* test.bson in Resources */,
 				164D1BC91E71609D003EC8D4 /* jobs.bson in Resources */,
 				16ED55E41E6D6ED9009AF2DC /* identities.bson in Resources */,

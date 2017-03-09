@@ -15,7 +15,8 @@ TARGET := bin/bsonparser
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g # -Wall
+#CFLAGS := -g # -Wall
+CXXFLAGS=-O3 -std=c++0x -pg -D_DEBUG -g -c -Wall -Wc++11-extensions
 LIB := 
 INC := -I include
 
@@ -25,9 +26,8 @@ $(TARGET): $(OBJECTS)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $<
-	cp samples/test.bson bin/test.bson
-	cp samples/test2.bson bin/test2.bson
+	@echo " $(CC) $(CXXFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CXXFLAGS) $(INC) -c -o $@ $<
+	cp samples/*.bson bin/
 
 clean:
 	@echo " Cleaning..."; 

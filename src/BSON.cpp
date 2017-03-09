@@ -21,6 +21,9 @@
 using namespace std;
 using namespace rapidjson;
 
+/*
+ * Constructor. Takes a vector of chars as input and sets the bson property.
+ */
 BSON::BSON(std::vector<char> input){
     if(DEBUG_APP) {
         cout << "Object BSON created\n";
@@ -29,6 +32,12 @@ BSON::BSON(std::vector<char> input){
     
 }
 
+
+/*
+ * ParseIterator: It Parses each document and converts it in the repective JSON object
+ * From BSON specs: It reads the first byte and pass a pointer to the respective function
+ * to parse the payload of each element.
+ */
 
 void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::iterator end, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
@@ -43,6 +52,12 @@ void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::i
         }
         
         switch((int)*it) {
+            
+            case 0:
+            {
+                continue;
+                break;
+            }
             case 1:
             {
                 ParseDouble(it, doc, allocator, IsArray);
@@ -113,16 +128,18 @@ void BSON::ParseIterator(std::vector<char>::iterator begin, std::vector<char>::i
                 ParseBinary(it, doc, allocator, IsArray);
                 break;
             }
-            
-                
         }
+        
+        if(end - it < 0)
+            return;
     }
 }
 
 
 
-// Auxiliary Functios
-
+/* Auxiliary Functions:
+ * Helpers to extract information from the payload.
+ */
 int ExtractInt32(std::vector<char>::iterator &it){
     int32_t size ;
     
@@ -199,75 +216,6 @@ string ExtractBinaryAsString(std::vector<char>::iterator &it, int size){
     return output.str();
 }
 
-
-
-void BSON::Dump() {
-    
-    for(auto & doc : documents){
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
-        doc.Accept(writer);
-        std::cout << buffer.GetString() << std::endl;
-    }
-}
-
-
-
-
-void BSON::Parse() {
-    
-    int total_size = (int)bson.size();
-    int partial_size = 0;
-
-    if (total_size == 0)
-        return;
-    
-    
-    int i = 0;  // counter.
-    
-    Document doc;
-    Document::AllocatorType& allocator = doc.GetAllocator();
-    doc.SetObject();
-
-    // main loop
-
-    for (std::vector<char>::iterator it = bson.begin() ; partial_size < total_size; ++it, i++){
-        // First process the first 4 bytes to get the int32 with the size:
-        int current_size = ExtractInt32(it);
-        partial_size += current_size;
-        
-        if(current_size > total_size)
-            return;
-        
-        
-        if(DEBUG_APP){
-            for(int i = 0; i < current_size; i++){
-                cout << "i" << i << ":" << (int)bson[i] << "\n";
-            }
-            cout << "THE END\n";
-        }
-
-        ParseIterator(it, it+current_size-5, doc, allocator);
-        documents.push_back(doc.GetObject());
-        
-        
-        it += current_size -5;  // the next byte to process -(4 + 1)
-
-    }
-}
-
-
-
-string BSON::ParseEName(std::vector<char>::iterator &it){
-    string output;
-    while(*it != 0){
-        output += *it;
-        it++;
-    }
-    it++; // move away from \0
-    return output;
-}
-
 string ExtractDatetime(std::vector<char>::iterator &it){
     int64_t mid;
     char buffer[sizeof(int64_t)];
@@ -302,8 +250,97 @@ bool ExtractBoolean(std::vector<char>::iterator &it){
     else
         return true;
 }
+/*
+ * End of helpers
+ */
 
 
+
+/*
+ * Dump: It prints the content of the JSON parsed
+ */
+void BSON::Dump() {
+    for(auto & doc : documents){
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        doc.Accept(writer);
+        std::cout << buffer.GetString() << std::endl;
+    }
+}
+
+/*
+ * Parse: It parses the array of bytes, converting each top level
+ * document into a entry in the final JSON object.
+ */
+
+void BSON::Parse() {
+    int total_size = (int)bson.size();
+    int partial_size = 0;
+
+    if (total_size == 0)
+        return;
+    
+    
+    int i = 0;  // counter.
+    
+    Document doc;
+    Document::AllocatorType& allocator = doc.GetAllocator();
+    doc.SetObject();
+
+    // main loop
+    for (std::vector<char>::iterator it = bson.begin() ; partial_size < total_size; ++it, i++){
+        // First process the first 4 bytes to get the int32 with the size:
+        int current_size = ExtractInt32(it);
+        partial_size += current_size;
+        
+        if(current_size > total_size)
+            return;
+        
+        
+        if(DEBUG_APP){
+            for(int i = 0; i < current_size; i++){
+                cout << "i" << i << ":" << (int)bson[i] << "\n";
+            }
+            cout << "THE END\n";
+        }
+
+        // Iterates through the document
+        ParseIterator(it, it+current_size-5, doc, allocator);
+        
+        //Pushes each document parsed into the final JSON object.
+        documents.push_back(doc.GetObject());
+        
+        
+        it += current_size -5;  // the next byte to process -(4 + 1)
+
+    }
+}
+
+
+
+
+/*
+ * ExtractDatetime: It parses the e_name of each element
+ */
+
+
+
+/*
+ * ParseEName: It parses the e_name of each element
+ */
+string BSON::ParseEName(std::vector<char>::iterator &it){
+    string output;
+    while(*it != 0){
+        output += *it;
+        it++;
+    }
+    it++; // move away from \0
+    return output;
+}
+
+/*
+ * ParseDouble: It parses a double value of an element
+ */
 void BSON::ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if (DEBUG_APP)
         cout << "CASE 1\n";
@@ -325,10 +362,11 @@ void BSON::ParseDouble(std::vector<char>::iterator &it, Value &doc, Document::Al
         cout << "doub: " << e_string_double << "\n";
         cout << "value: " << num << "\n";
     }
-    
 }
 
-
+/*
+ * ParseString: It parses a string value of an element
+ */
 void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     if (DEBUG_APP)
@@ -354,6 +392,9 @@ void BSON::ParseString(std::vector<char>::iterator &it, Value &doc, Document::Al
     }
 }
 
+/*
+ * ParseInt32: It parses a int32 value of an element
+ */
 void BSON::ParseInt32(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if (DEBUG_APP)
         cout << "CASE 16\n";
@@ -369,9 +410,13 @@ void BSON::ParseInt32(std::vector<char>::iterator &it, Value &doc, Document::All
     } else {
         doc.AddMember(Value(key_string, allocator).Move(), Value(intV, allocator).Move(), allocator);
     }
-
 }
 
+/*
+ * ParseDocument: It parses an embedded document value of an element
+ * This method calls ParseIterator _recursively_. Then it moves the pointer to the final 
+ * of the block parsed
+ */
 void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     if (DEBUG_APP){
@@ -396,7 +441,11 @@ void BSON::ParseDocument(std::vector<char>::iterator &it, Value &doc, Document::
     }
 }
 
-
+/*
+ * ParseArray: It parses an array value of an element
+ * This method calls ParseIterator _recursively_ with the IsArray flag = true. 
+ * Then it moves the pointer to the final of the block/array parsed
+ */
 void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if (DEBUG_APP) {
         cout << "CASE 4\n";
@@ -420,6 +469,9 @@ void BSON::ParseArray(std::vector<char>::iterator &it, Value &doc, Document::All
     }
 }
 
+/*
+ * ParseBinary: It parses a binary value of an element
+ */
 void BSON::ParseBinary(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if (DEBUG_APP)
         cout << "CASE 5\n";
@@ -438,11 +490,12 @@ void BSON::ParseBinary(std::vector<char>::iterator &it, Value &doc, Document::Al
     } else {
         doc.AddMember(Value(key_string, allocator).Move(), Value(stringV, allocator).Move(), allocator);
     }
-
-    
 }
 
 
+/*
+ * ParseObjectID: It parses a ObjectID value of an element. The value is stored as String
+ */
 void BSON::ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if(DEBUG_APP)
         cout << "CASE 7\n";
@@ -463,6 +516,9 @@ void BSON::ParseObjectID(std::vector<char>::iterator &it, Value &doc, Document::
     }
 }
 
+/*
+ * ParseBoolean: It parses a boolean value of an element.
+ */
 void BSON::ParseBoolean(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     if(DEBUG_APP)
@@ -484,10 +540,11 @@ void BSON::ParseBoolean(std::vector<char>::iterator &it, Value &doc, Document::A
     } else {
         doc.AddMember(Value(key, allocator).Move(), Value(resV, allocator).Move(), allocator);
     }
-
-    
 }
 
+/*
+ * ParseUTCDatetime: It parses a UTC datatime value of an element.
+ */
 void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     if (DEBUG_APP)
         cout << "CASE 9\n";
@@ -510,6 +567,9 @@ void BSON::ParseUTCDatetime(std::vector<char>::iterator &it, Value &doc, Documen
     }
 }
 
+/*
+ * ParseNull: It parses a null "value" of an element.
+ */
 void BSON::ParseNull(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){ // 10
     
     if(DEBUG_APP)
@@ -528,6 +588,9 @@ void BSON::ParseNull(std::vector<char>::iterator &it, Value &doc, Document::Allo
     }
 }
 
+/*
+ * ParseTimestamp: It parses a timestamp value of an element.
+ */
 void BSON::ParseTimestamp(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     if (DEBUG_APP)
@@ -552,6 +615,9 @@ void BSON::ParseTimestamp(std::vector<char>::iterator &it, Value &doc, Document:
     }
 }
 
+/*
+ * ParseInt64: It parses a int64 value of an element.
+ */
 void BSON::ParseInt64(std::vector<char>::iterator &it, Value &doc, Document::AllocatorType &allocator, bool IsArray){
     
     if (DEBUG_APP)
